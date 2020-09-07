@@ -21,8 +21,10 @@ tournaments_json <- fromJSON("data/tournaments.json") %>%
 
 #date read in as character
 sfv_tourneys <- tournaments_json %>% 
-  filter(version == 'SF5') %>%
-  mutate(date = as.Date(date))
+  filter(version == 'SF5' & 
+           type != 'UNRANKED') %>%
+  mutate(date = as.Date(date, format = '%d-%m-%Y')) #%>%
+  #unnest(players)
 
 #need a way to gather a list of placements by character. 
 #Or even just setup average placement by character? mean and median?
