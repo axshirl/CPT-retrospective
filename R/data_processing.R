@@ -21,13 +21,13 @@ tournaments_json <- fromJSON("data/tournaments.json") %>%
 
 #date read in as character
 sfv_tourneys <- tournaments_json %>% 
-  filter(version == 'SF5' & 
-           type != 'UNRANKED') %>%
+  filter(version == 'SF5') %>%
   mutate(date = as.Date(date, format = '%d-%m-%Y')) #%>%
   #unnest(players)
 
-#need a way to gather a list of placements by character. 
-#Or even just setup average placement by character? mean and median?
-#group_by(pteams) %>% summarize(mean(place), median(place))
-#Big problem tho- We want to summarize these for ALL tournaments, we can't average them per tourney.
-#could unnest the players column then group & summarize. But I don't know if I like that... doesnt feel tidy.
+unique(sfv_tourneys$type)
+#data before a certain date (2019? very recent) is entirely listed as UNRANKED for column 'type'
+#most likely going to have to go thru ranking criteria for 2016 -> 2019 seasons & 
+#manually add points by ranking type. shouldn't be THAT bad since once I 
+#correctly classify each type of tourney I can just then score by Place + Tourney Type w/ ifelse
+
