@@ -61,11 +61,11 @@ df_2017 <- data.frame(
 
 
 event_list = list()
-
-for (i in 2016:2019) {
+for (i in 1:4) {
+  loop_year = 2015+i
   cpt_page <- read_html(
     paste0('https://capcomprotour.com/schedule/?season=',
-    i, 
+    loop_year, 
     '&list_view=&lang=en-us')
     )
   
@@ -83,11 +83,10 @@ for (i in 2016:2019) {
     .[cut_buttons]
   
   dat <- data.frame(
+    event_year = loop_year, 
     event_title = titles, 
-    event_type = types 
+    event_type = types
   ) 
-  
-  dat$event_year <- i
   event_list[[i]] <- dat
 }
 
