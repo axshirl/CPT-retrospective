@@ -6,7 +6,7 @@
 ##################################################
 
 #### Package Loads ####
-package_list = c("dplyr", "tidyr", "jsonlite", 'purrr', )
+package_list = c("dplyr", "tidyr", "jsonlite", 'purrr', 'rvest' )
 packages_missing = package_list[!(package_list %in% installed.packages()[,"Package"])]
 if(length(packages_missing) > 0) install.packages(packages_missing)
 loaded_pkgs = lapply(package_list, require, character.only = TRUE)
@@ -34,19 +34,61 @@ sfv_tourneys <- tournaments_json %>%
 #scraping the capcom site for tourney names + types.
 #scraping is very minimal luckily
 
-cpt_2016 <- read_html('https://capcomprotour.com/schedule/?season=2016&list_view=&lang=en-us')
 
-df_2016 <- data.frame(
-  event_year = 2016, 
-  event_title = cpt_2016 %>% 
+
+
+cpt_2017 <- read_html('https://capcomprotour.com/schedule/?season=2019&list_view=&lang=en-us')
+
+titles = cpt_2017 %>% 
+  html_nodes('.aga-list-title') %>%
+  html_text()
+cut_buttons <- cpt_2017 %>%
+  html_nodes('.tag-event') %>%
+  html_name() %>%
+  `!=`('button') #lol this is gross
+
+types = cpt_2017 %>%
+  html_nodes('.tag-event') %>%
+  html_text() %>%
+  .[cut_buttons]
+
+df_2017 <- data.frame(
+  event_year = 2017, 
+  event_title = titles, 
+  event_type = types #first 4 elements are part of their filters. ez remove.
+) %>% 
+  nest(data = c(event_title, event_type))
+
+
+event_list = list()
+
+for (i in 2016:2019) {
+  cpt_page <- read_html(
+    paste0('https://capcomprotour.com/schedule/?season=',
+    i, 
+    '&list_view=&lang=en-us')
+    )
+  
+  titles = cpt_page %>% 
     html_nodes('.aga-list-title') %>%
-    html_text(), 
-  event_type = cpt_2016 %>%
+    html_text()
+  cut_buttons <- cpt_page %>%
+    html_nodes('.tag-event') %>%
+    html_name() %>%
+    `!=`('button') #lol this is gross
+  
+  types = cpt_page %>%
     html_nodes('.tag-event') %>%
     html_text() %>%
-    tail(-4) #first 4 elements are part of their filters. ez remove.
-  )
-View(df_2016)
+    .[cut_buttons]
+  
+  dat <- data.frame(
+    event_title = titles, 
+    event_type = types 
+  ) 
+  
+  dat$event_year <- i
+  event_list[[i]] <- dat
+}
 
-
-
+big_data = do.call(rbind, datalist)
