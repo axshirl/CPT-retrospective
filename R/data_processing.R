@@ -34,34 +34,8 @@ sfv_tourneys <- tournaments_json %>%
 #scraping the capcom site for tourney names + types.
 #scraping is very minimal luckily
 
-
-
-
-cpt_2017 <- read_html('https://capcomprotour.com/schedule/?season=2019&list_view=&lang=en-us')
-
-titles = cpt_2017 %>% 
-  html_nodes('.aga-list-title') %>%
-  html_text()
-cut_buttons <- cpt_2017 %>%
-  html_nodes('.tag-event') %>%
-  html_name() %>%
-  `!=`('button') #lol this is gross
-
-types = cpt_2017 %>%
-  html_nodes('.tag-event') %>%
-  html_text() %>%
-  .[cut_buttons]
-
-df_2017 <- data.frame(
-  event_year = 2017, 
-  event_title = titles, 
-  event_type = types #first 4 elements are part of their filters. ez remove.
-) %>% 
-  nest(data = c(event_title, event_type))
-
-
 event_list = list()
-for (i in 1:4) {
+for (i in 1:5) {
   loop_year = 2015+i
   cpt_page <- read_html(
     paste0('https://capcomprotour.com/schedule/?season=',
@@ -90,4 +64,4 @@ for (i in 1:4) {
   event_list[[i]] <- dat
 }
 
-big_data = do.call(rbind, datalist)
+sfv_cpt = bind_rows(event_list)
