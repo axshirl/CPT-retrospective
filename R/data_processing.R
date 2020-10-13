@@ -30,17 +30,23 @@ sfv_tourneys <- tournaments_json %>%
 #most likely going to have to go thru ranking criteria for 2016 -> 2019 seasons & 
 #basically need to make a key- How much were places worth for Type = 'premier' in 2016? 2017? etc
 
-
+####Classifying tourneys####
 #scraping the capcom site for tourney names + types.
 #scraping is very minimal luckily
-cpt_2016 <- read_html('https://capcomprotour.com/schedule/?season=2016&list_view=&lang=en-us')
-cpt_2016 %>% 
-  html_nodes('.aga-list-title') %>%
-  html_text()
 
-cpt_2016 %>%
-  html_nodes('.tag-event') %>%
-  html_text() %>%
-  tail(-4) #first 4 elements are part of their filters. ez remove.
+cpt_2016 <- read_html('https://capcomprotour.com/schedule/?season=2016&list_view=&lang=en-us')
+
+df_2016 <- data.frame(
+  event_year = 2016, 
+  event_title = cpt_2016 %>% 
+    html_nodes('.aga-list-title') %>%
+    html_text(), 
+  event_type = cpt_2016 %>%
+    html_nodes('.tag-event') %>%
+    html_text() %>%
+    tail(-4) #first 4 elements are part of their filters. ez remove.
+  )
+View(df_2016)
+
 
 
