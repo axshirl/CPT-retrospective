@@ -58,10 +58,11 @@ for (i in 1:5) {
   
   dat <- data.frame(
     event_year = loop_year, 
-    event_title = titles, 
-    event_type = types
+    event_type = types,
+    event_title = titles 
   ) 
   event_list[[i]] <- dat
 }
 
-sfv_cpt = bind_rows(event_list)
+sfv_cpt = bind_rows(event_list) %>%
+  nest(data = c(event_title))
