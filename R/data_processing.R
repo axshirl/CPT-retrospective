@@ -6,7 +6,7 @@
 ##################################################
 
 #### Package Loads ####
-package_list = c("dplyr", "tidyr", "jsonlite", 'purrr')
+package_list = c("dplyr", "tidyr", "jsonlite", 'purrr', )
 packages_missing = package_list[!(package_list %in% installed.packages()[,"Package"])]
 if(length(packages_missing) > 0) install.packages(packages_missing)
 loaded_pkgs = lapply(package_list, require, character.only = TRUE)
@@ -22,12 +22,25 @@ tournaments_json <- fromJSON("data/tournaments.json") %>%
 #date read in as character
 sfv_tourneys <- tournaments_json %>% 
   filter(version == 'SF5') %>%
-  mutate(date = as.Date(date, format = '%d-%m-%Y')) #%>%
+  mutate(date = as.Date(date, format = '%d-%m-%Y')) %>%
+  select(-c(version, videos, challonge, creator))
   #unnest(players)
 
-unique(sfv_tourneys$type)
 #data before a certain date (2019? very recent) is entirely listed as UNRANKED for column 'type'
 #most likely going to have to go thru ranking criteria for 2016 -> 2019 seasons & 
-#manually add points by ranking type. shouldn't be THAT bad since once I 
-#correctly classify each type of tourney I can just then score by Place + Tourney Type w/ ifelse
+#basically need to make a key- How much were places worth for Type = 'premier' in 2016? 2017? etc
+
+
+#scraping the capcom site for tourney names + types.
+#scraping is very minimal luckily
+cpt_2016 <- read_html('https://capcomprotour.com/schedule/?season=2016&list_view=&lang=en-us')
+cpt_2016 %>% 
+  html_nodes('.aga-list-title') %>%
+  html_text()
+
+cpt_2016 %>%
+  html_nodes('.tag-event') %>%
+  html_text() %>%
+  tail(-4) #first 4 elements are part of their filters. ez remove.
+
 
