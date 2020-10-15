@@ -66,3 +66,15 @@ for (i in 1:5) {
 
 sfv_cpt = bind_rows(event_list) %>%
   nest(data = c(event_title))
+
+
+#ooook. not a lot of actual code coming- gonna write up some quick findings.
+#2016-
+#-EVO: 1-1024/2-512/3-256/5-64/7-32/9-16/13-8
+#-Premier: 1-256/2-128/3-64/4-32/5-16/7-8/9-4/13-2
+#-Ranking: 1-128/2-64/3-32/4-16/5-8/7-4/9-2/13-1
+#Trend- EVO = 4x Premier, Premier = 2x Ranking.
+
+
+
+
