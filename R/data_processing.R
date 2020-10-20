@@ -43,7 +43,7 @@ for (i in 1:5) {
     '&list_view=&lang=en-us')
     )
   
-  titles = cpt_page %>% 
+  titles <- cpt_page %>% 
     html_nodes('.aga-list-title') %>%
     html_text()
   cut_buttons <- cpt_page %>%
@@ -51,15 +51,20 @@ for (i in 1:5) {
     html_name() %>%
     `!=`('button') #lol this is gross
   
-  types = cpt_page %>%
+  types <- cpt_page %>%
     html_nodes('.tag-event') %>%
     html_text() %>%
     .[cut_buttons]
   
+  result_links <- cpt_page %>%
+    html_nodes('.btn:nth-child(1)') %>%
+    html_attr('href') 
+  
   dat <- data.frame(
     event_year = loop_year, 
     event_type = types,
-    event_title = titles 
+    event_title = titles, 
+    event_results = result_links
   ) 
   event_list[[i]] <- dat
 }
@@ -88,3 +93,53 @@ sfv_cpt = bind_rows(event_list) %>%
 # - I want to get data not DDOS capcom lol
 
 
+
+cpt_page <- read_html('https://capcomprotour.com/schedule/?season=2018&list_view=&lang=en-us')
+
+
+
+titles <- cpt_page %>% 
+  html_nodes('.aga-list-title') %>%
+  html_text()
+cut_buttons <- cpt_page %>%
+  html_nodes('.tag-event') %>%
+  html_name() %>%
+  `!=`('button') #lol this is gross
+
+types <- cpt_page %>%
+  html_nodes('.tag-event') %>%
+  html_text() %>%
+  .[cut_buttons]
+
+link_refs <- cpt_page %>%
+  html_nodes('.btn:nth-child(1)') %>%
+  html_attr('href') %>%
+  length()
+#issue in adding this on 2018, mismatching n of rows 1, 67, 66 
+#event_year = loop_year, event_type = types, event_title = titles
+#1, 67, 66 
+#essentially we're missing _one_ link ref from 2018. 
+#link ref in 2018 exists bc, for some reason, taipei major 2018 results
+#aren't posted on CPT site.
+
+
+cpt_page %>% 
+  html_nodes('.btn:nth-child(1) , .tag-event , .aga-list-title') 
+
+cut_buttons <- cpt_page %>%
+  html_nodes('.btn:nth-child(1) , .tag-event , .aga-list-title') %>%
+  html_name() %>%
+  `!=`('button')
+all_check <- cpt_page %>%
+  html_nodes('.btn:nth-child(1) , .tag-event , .aga-list-title') %>%
+  .[cut_buttons]
+all_check %>% html_name()
+#My goal is gonna be to write this such that all 3 are pulled at once & 
+#they're placed into their groups on their own in a dataframe
+#but I'm not sure how to do this yet- 
+#Rough ideas currently involve counting up each time a new title exists 
+#title = named a
+#and then each row should have
+#title (a) , event type (div) , and link (h3)
+#Just trying to make sure that the one row w/o a link is properly caught and set as null
+#and if I can't think of a clever way to do this i'll just manually enter it :(
