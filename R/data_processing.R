@@ -104,7 +104,7 @@ titles <- cpt_page %>%
 cut_buttons <- cpt_page %>%
   html_nodes('.tag-event') %>%
   html_name() %>%
-  `!=`('button') #lol this is gross
+  `!=`('button') 
 
 types <- cpt_page %>%
   html_nodes('.tag-event') %>%
@@ -133,7 +133,7 @@ cut_buttons <- cpt_page %>%
 all_check <- cpt_page %>%
   html_nodes('.btn:nth-child(1) , .tag-event , .aga-list-title') %>%
   .[cut_buttons]
-all_check %>% html_name()
+all_check %>% html_name() %>% class()
 #My goal is gonna be to write this such that all 3 are pulled at once & 
 #they're placed into their groups on their own in a dataframe
 #but I'm not sure how to do this yet- 
@@ -143,3 +143,28 @@ all_check %>% html_name()
 #title (a) , event type (div) , and link (h3)
 #Just trying to make sure that the one row w/o a link is properly caught and set as null
 #and if I can't think of a clever way to do this i'll just manually enter it :(
+
+
+
+
+
+
+cpt_page %>% html_nodes('.clearfix') %>% View()
+
+all_check %>%
+  map_df(~{
+  titles <- .x %>% html_nodes('a') %>% html_text()
+  types <- .x %>% html_nodes('div') %>% html_text()
+  link_refs <- .x %>% html_nodes('a') %>% html_attr('href')
+  data_frame(titles, types, link_refs)
+  })
+  
+
+#WOW I've added a TON of nothing! 
+#I think this .clearfix thing is promising. I don't really
+#understand CSS fully so I'm kinda swinging in the dark rn but
+#If I can use this to isolate events- maintaining their structure
+#then I've already done the work of tying together title-type-link
+#and hopefully this means missing links (the literal ONE outlier)
+#will come back as NULL links instead of not coming back at all...
+
