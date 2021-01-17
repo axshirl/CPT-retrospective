@@ -32,7 +32,6 @@ sfv_tourneys <- tournaments_json %>%
 
 ####Classifying tourneys####
 #scraping the capcom site for tourney names + types.
-#scraping is very minimal luckily
 
 event_list = list()
 for (i in 1:5) {
@@ -59,7 +58,10 @@ for (i in 1:5) {
   result_links <- cpt_page %>%
     html_nodes('.btn:nth-child(1)') %>%
     html_attr('href') 
-  
+  if(loop_year==2018){
+    result_links <- result_links %>%
+      append('https://capcomprotour.com/twfighter-major-2018-results/', after=29)
+  }
   dat <- data.frame(
     event_year = loop_year, 
     event_type = types,
@@ -70,7 +72,7 @@ for (i in 1:5) {
 }
 
 sfv_cpt = bind_rows(event_list) %>%
-  nest(data = c(event_title))
+  nest(data = c(event_title, event_results))
 
 
 #ooook. not a lot of actual code coming- gonna write up some quick findings.
@@ -91,90 +93,3 @@ sfv_cpt = bind_rows(event_list) %>%
 # - would pull players AND characters AND results! this is huge...
 # - NOTE- gotta be careful about how hard we hit the cpt site. 
 # - I want to get data not DDOS capcom lol
-
-
-
-cpt_page <- read_html('https://capcomprotour.com/schedule/?season=2018&list_view=&lang=en-us')
-
-
-
-titles <- cpt_page %>% 
-  html_nodes('.aga-list-title') %>%
-  html_text()
-cut_buttons <- cpt_page %>%
-  html_nodes('.tag-event') %>%
-  html_name() %>%
-  `!=`('button') 
-
-types <- cpt_page %>%
-  html_nodes('.tag-event') %>%
-  html_text() %>%
-  .[cut_buttons]
-
-link_refs <- cpt_page %>%
-  html_nodes('.btn:nth-child(1)') %>%
-  html_attr('href') %>%
-  length()
-#issue in adding this on 2018, mismatching n of rows 1, 67, 66 
-#event_year = loop_year, event_type = types, event_title = titles
-#1, 67, 66 
-#essentially we're missing _one_ link ref from 2018. 
-#link ref in 2018 exists bc, for some reason, taipei major 2018 results
-#aren't posted on CPT site.
-
-
-cpt_page %>% 
-  html_nodes('.btn:nth-child(1) , .tag-event , .aga-list-title') 
-
-cut_buttons <- cpt_page %>%
-  html_nodes('.btn:nth-child(1) , .tag-event , .aga-list-title') %>%
-  html_name() %>%
-  `!=`('button')
-all_check <- cpt_page %>%
-  html_nodes('.btn:nth-child(1) , .tag-event , .aga-list-title') %>%
-  .[cut_buttons]
-all_check %>% html_name() %>% class()
-#My goal is gonna be to write this such that all 3 are pulled at once & 
-#they're placed into their groups on their own in a dataframe
-#but I'm not sure how to do this yet- 
-#Rough ideas currently involve counting up each time a new title exists 
-#title = named a
-#and then each row should have
-#title (a) , event type (div) , and link (h3)
-#Just trying to make sure that the one row w/o a link is properly caught and set as null
-#and if I can't think of a clever way to do this i'll just manually enter it :(
-
-
-
-
-
-cpt_page_2018 <- read_html('https://capcomprotour.com/schedule/?season=2018&list_view=&lang=en-us')
-clearfix_18 <- cpt_page_2018 %>% html_nodes('.clearfix') 
-View(clearfix_18) #1st notable at 4, last notable at 70 (of 72 total)
-
-cpt_page_2017 <- read_html('https://capcomprotour.com/schedule/?season=2018&list_view=&lang=en-us')
-clearfix_17 <- cpt_page_2017 %>% html_nodes('.clearfix') 
-View(clearfix_17) #1st notable at 4, last notable at 70 (of 72 total)
-
-cpt_page_2019 <- read_html('https://capcomprotour.com/schedule/?season=2018&list_view=&lang=en-us')
-clearfix_19 <- cpt_page_2019 %>% html_nodes('.clearfix') 
-View(clearfix_19)
-#chop 3 off head, 2 off tail?
-
-all_check %>%
-  map_df(~{
-  titles <- .x %>% html_nodes('a') %>% html_text()
-  types <- .x %>% html_nodes('div') %>% html_text()
-  link_refs <- .x %>% html_nodes('a') %>% html_attr('href')
-  data_frame(titles, types, link_refs)
-  })
-  
-
-#WOW I've added a TON of nothing! 
-#I think this .clearfix thing is promising. I don't really
-#understand CSS fully so I'm kinda swinging in the dark rn but
-#If I can use this to isolate events- maintaining their structure
-#then I've already done the work of tying together title-type-link
-#and hopefully this means missing links (the literal ONE outlier)
-#will come back as NULL links instead of not coming back at all...
-
