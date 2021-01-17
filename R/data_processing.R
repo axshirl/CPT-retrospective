@@ -148,8 +148,18 @@ all_check %>% html_name() %>% class()
 
 
 
+cpt_page_2018 <- read_html('https://capcomprotour.com/schedule/?season=2018&list_view=&lang=en-us')
+clearfix_18 <- cpt_page_2018 %>% html_nodes('.clearfix') 
+View(clearfix_18) #1st notable at 4, last notable at 70 (of 72 total)
 
-cpt_page %>% html_nodes('.clearfix') %>% View()
+cpt_page_2017 <- read_html('https://capcomprotour.com/schedule/?season=2018&list_view=&lang=en-us')
+clearfix_17 <- cpt_page_2017 %>% html_nodes('.clearfix') 
+View(clearfix_17) #1st notable at 4, last notable at 70 (of 72 total)
+
+cpt_page_2019 <- read_html('https://capcomprotour.com/schedule/?season=2018&list_view=&lang=en-us')
+clearfix_19 <- cpt_page_2019 %>% html_nodes('.clearfix') 
+View(clearfix_19)
+#chop 3 off head, 2 off tail?
 
 all_check %>%
   map_df(~{
