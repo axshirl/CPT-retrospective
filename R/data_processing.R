@@ -84,7 +84,12 @@ for (i in 1:5) {
 sfv_cpt = bind_rows(event_list) #%>%
   #nest(data = c(event_title, event_results))
 
-View(sfv_cpt)
+#read in each results page and then start cleaning
+#lotta regex coming up. Need to separate sponsor tag from player tag
+#clean up Placing and change from character "1st" to numeric/int "1" 
+#clean up Characters columns ("Dhalsim/Kolin") maybe make it wider?
+#ie character1 "Dhalsim" character2 "Kolin" 
+#which would mean NAs for single main players
 result_page <- read_html(sfv_cpt$event_results[87])
 result_table <- result_page %>% html_node('.easy-table-default') %>% html_table()
 result_table$tag <- ifelse(str_detect(result_table$Handle, "\\|"), 
