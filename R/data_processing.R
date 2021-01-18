@@ -6,7 +6,7 @@
 ##################################################
 
 #### Package Loads ####
-package_list = c("dplyr", "tidyr", "jsonlite", 'purrr', 'rvest' )
+package_list = c("dplyr", "tidyr", "jsonlite", 'purrr', 'rvest', 'stringr')
 packages_missing = package_list[!(package_list %in% installed.packages()[,"Package"])]
 if(length(packages_missing) > 0) install.packages(packages_missing)
 loaded_pkgs = lapply(package_list, require, character.only = TRUE)
@@ -71,8 +71,28 @@ for (i in 1:5) {
   event_list[[i]] <- dat
 }
 
-sfv_cpt = bind_rows(event_list) %>%
-  nest(data = c(event_title, event_results))
+sfv_cpt = bind_rows(event_list) #%>%
+  #nest(data = c(event_title, event_results))
+
+View(sfv_cpt)
+result_page <- read_html(sfv_cpt$event_results[87])
+result_table <- result_page %>% html_node('.easy-table-default') %>% html_table()
+result_table$tag <- ifelse(str_detect(result_table$Handle, "\\|"), 
+                           str_extract(result_table$Handle, 
+                                       "\\|.*") %>% str_remove("\\|"), 
+                           result_table$Handle)
+result_table$sponsor <- str_extract(result_table$Handle, 
+                                    "^.[^|]*\\|") %>% 
+  str_remove("\\|")
+result_table$Placing <- str_extract(result_table$Placing, 
+                                    "[:digit:]*") %>% as.numeric()
+tourney_results <- result_table %>% select('placing' = Placing, 
+                                           sponsor,
+                                           tag, 
+                                           "characters" = Characters, 
+                                           'points' = Points
+                                           ) 
+
 
 
 #ooook. not a lot of actual code coming- gonna write up some quick findings.
