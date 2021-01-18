@@ -41,14 +41,15 @@ for (i in 1:5) {
     loop_year, 
     '&list_view=&lang=en-us')
     )
-  
+  #extracting titles, event types (i.e. 'Premier',) and links to results
   titles <- cpt_page %>% 
     html_nodes('.aga-list-title') %>%
     html_text()
   cut_buttons <- cpt_page %>%
     html_nodes('.tag-event') %>%
     html_name() %>%
-    `!=`('button') #lol this is gross
+    `!=`('button') #lol this is gross. "everything that happens in R is a function call" 
+  #treating != as `!=`() 
   
   types <- cpt_page %>%
     html_nodes('.tag-event') %>%
@@ -61,7 +62,12 @@ for (i in 1:5) {
   if(loop_year==2018){
     result_links <- result_links %>%
       append('https://capcomprotour.com/twfighter-major-2018-results/', after=29)
-  }
+  } #This sucks. In 2018 there's a unique case
+  #of a tournament whose results page isn't actually linked on the overall page
+  #and while I spent so much time searching for an elegant solution
+  #to make this just give me an NA in place of the link...
+  #the link actually exists. it's just not referenced on the main page
+  #so the only way to add it is either referencing thru another page or manually.
   dat <- data.frame(
     event_year = loop_year, 
     event_type = types,
