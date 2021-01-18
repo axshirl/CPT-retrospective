@@ -34,6 +34,7 @@ sfv_tourneys <- tournaments_json %>%
 #scraping the capcom site for tourney names + types.
 
 event_list = list()
+#we'll need somewhere to keep our dataframes as we build them
 for (i in 1:5) {
   loop_year = 2015+i
   cpt_page <- read_html(
@@ -73,8 +74,11 @@ for (i in 1:5) {
     event_type = types,
     event_title = titles, 
     event_results = result_links
-  ) 
+  ) #wrapping it all in a df
   event_list[[i]] <- dat
+  #store that in a list, so that we have list
+  #elements for each year of tourneys
+  
 }
 
 sfv_cpt = bind_rows(event_list) #%>%
