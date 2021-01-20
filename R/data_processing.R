@@ -87,9 +87,8 @@ sfv_cpt = bind_rows(event_list) #%>%
 #read in each results page and then start cleaning
 #lotta regex coming up. Need to separate sponsor tag from player tag
 #clean up Placing and change from character "1st" to numeric/int "1" 
-#clean up Characters columns ("Dhalsim/Kolin") maybe make it wider?
-#ie character1 "Dhalsim" character2 "Kolin" 
-#which would mean NAs for single main players
+#clean up Characters columns ("Dhalsim/Kolin") 
+
 result_page <- read_html(sfv_cpt$event_results[87])
 result_table <- result_page %>% html_node('.easy-table-default') %>% html_table()
 result_table$tag <- ifelse(str_detect(result_table$Handle, "\\|"), 
@@ -99,14 +98,23 @@ result_table$tag <- ifelse(str_detect(result_table$Handle, "\\|"),
 result_table$sponsor <- str_extract(result_table$Handle, 
                                     "^.[^|]*\\|") %>% 
   str_remove("\\|")
-result_table$Placing <- str_extract(result_table$Placing, 
+result_table$placement <- str_extract(result_table$Placing, 
                                     "[:digit:]*") %>% as.numeric()
-tourney_results <- result_table %>% select('placing' = Placing, 
+result_table$characters <- result_table$Characters %>% str_split("\\/") 
+#splitting up the string for characters, i.e.
+#"Dhalsim/Kolin" should become c("Dhalsim", "kolin")
+#this makes this column a list, but as of rn I don't mind that
+#if worst comes to worst I guess we make it wide but I don't know
+#that i want to do that
+
+tourney_results <- result_table %>% select(placement, 
                                            sponsor,
                                            tag, 
-                                           "characters" = Characters, 
+                                           characters,
                                            'points' = Points
                                            ) 
+
+
 
 
 #what I'm thinking is essentially
