@@ -91,7 +91,7 @@ sfv_cpt = bind_rows(event_list) #%>%
 
 read_Results <- function(event_results, ...) {
   result_page <- read_html(event_results)
-  result_table <- result_page %>% html_node('.easy-table-default') %>% html_table()
+  result_table <- result_page %>% html_node('.easy-table-default') %>% html_table(fill=TRUE)
   result_table$tag <- ifelse(str_detect(result_table$Handle, "\\|"), 
                              str_extract(result_table$Handle, 
                                          "\\|.*") %>% str_remove("\\|"), 
@@ -120,9 +120,12 @@ read_Results <- function(event_results, ...) {
   return(tourney_results)
 }
 
-sfv_cpt1 <- sfv_cpt[1:5,]
-sfv_cpt1 %>% 
-  dplyr::mutate(tourney_results = map(.x = event_results , .f = read_Results))
+#testing rn: some CPT final events have an empty points column 
+#and this makes html_table() sad
+sfv_cpt1 <- sfv_cpt[1:3,]
+test_output <- sfv_cpt1 %>% 
+  dplyr::mutate(tourney_results = pmap(., .f = read_Results))
+
 
 #what I'm thinking is essentially
 # - we're already scraping each tourney name/class
@@ -134,14 +137,14 @@ sfv_cpt1 %>%
 
 
 
-a = c(2,4,6)
-b = c(10,12,14)
-params = expand.grid(a = a, b = b) %>% as_tibble()
-gen_den = function(a,b,...){ 
-  x = seq(0,1,0.1)
-  den = dbeta(x = x, shape1 = a, shape2 = b)
-  return(tibble(x = x, y = den))
-}
-params %>%
-  dplyr::mutate(data = pmap(., gen_den)) 
+# a = c(2,4,6)
+# b = c(10,12,14)
+# params = expand.grid(a = a, b = b) %>% as_tibble()
+# gen_den = function(a,b,...){ 
+#   x = seq(0,1,0.1)
+#   den = dbeta(x = x, shape1 = a, shape2 = b)
+#   return(tibble(x = x, y = den))
+# }
+# params %>%
+#   dplyr::mutate(data = pmap(., gen_den)) 
   
