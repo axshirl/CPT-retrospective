@@ -89,33 +89,40 @@ sfv_cpt = bind_rows(event_list) #%>%
 #clean up Placing and change from character "1st" to numeric/int "1" 
 #clean up Characters columns ("Dhalsim/Kolin") 
 
-result_page <- read_html(sfv_cpt$event_results[87])
-result_table <- result_page %>% html_node('.easy-table-default') %>% html_table()
-result_table$tag <- ifelse(str_detect(result_table$Handle, "\\|"), 
-                           str_extract(result_table$Handle, 
-                                       "\\|.*") %>% str_remove("\\|"), 
-                           result_table$Handle)
-result_table$sponsor <- str_extract(result_table$Handle, 
-                                    "^.[^|]*\\|") %>% 
-  str_remove("\\|")
-result_table$placement <- str_extract(result_table$Placing, 
-                                    "[:digit:]*") %>% as.numeric()
-result_table$characters <- result_table$Characters %>% str_split("\\/") 
-#splitting up the string for characters, i.e.
-#"Dhalsim/Kolin" should become c("Dhalsim", "kolin")
-#this makes this column a list, but as of rn I don't mind that
-#if worst comes to worst I guess we make it wide but I don't know
-#that i want to do that
+read_Results <- function(event_results, ...) {
+  result_page <- read_html(event_results)
+  result_table <- result_page %>% html_node('.easy-table-default') %>% html_table()
+  result_table$tag <- ifelse(str_detect(result_table$Handle, "\\|"), 
+                             str_extract(result_table$Handle, 
+                                         "\\|.*") %>% str_remove("\\|"), 
+                             result_table$Handle)
+  result_table$sponsor <- str_extract(result_table$Handle, 
+                                      "^.[^|]*\\|") %>% 
+    str_remove("\\|")
+  result_table$placement <- str_extract(result_table$Placing, 
+                                        "[:digit:]*") %>% as.numeric()
+  result_table$characters <- result_table$Characters %>% str_split("\\/") 
+  #splitting up the string for characters, i.e.
+  #"Dhalsim/Kolin" should become c("Dhalsim", "kolin")
+  #this makes this column a list, but as of rn I don't mind that
+  #if worst comes to worst I guess we make it wide but I don't know
+  #that i want to do that
+  
+  tourney_results <- result_table %>% 
+    mutate(Points = {if("Points" %in% names(.)) Points else NA}) %>%
+    select(placement, 
+           sponsor,
+           tag, 
+           characters,
+           'points' = Points
+           )
+  Sys.sleep(15) #adding a long pause between scrapes
+  return(tourney_results)
+}
 
-tourney_results <- result_table %>% select(placement, 
-                                           sponsor,
-                                           tag, 
-                                           characters,
-                                           'points' = Points
-                                           ) 
-
-
-
+sfv_cpt1 <- sfv_cpt[1:5,]
+sfv_cpt1 %>% 
+  dplyr::mutate(tourney_results = map(.x = event_results , .f = read_Results))
 
 #what I'm thinking is essentially
 # - we're already scraping each tourney name/class
@@ -123,3 +130,18 @@ tourney_results <- result_table %>% select(placement,
 # - would pull players AND characters AND results! this is huge...
 # - NOTE- gotta be careful about how hard we hit the cpt site. 
 # - I want to get data not DDOS capcom lol
+
+
+
+
+a = c(2,4,6)
+b = c(10,12,14)
+params = expand.grid(a = a, b = b) %>% as_tibble()
+gen_den = function(a,b,...){ 
+  x = seq(0,1,0.1)
+  den = dbeta(x = x, shape1 = a, shape2 = b)
+  return(tibble(x = x, y = den))
+}
+params %>%
+  dplyr::mutate(data = pmap(., gen_den)) 
+  
