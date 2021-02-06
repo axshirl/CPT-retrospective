@@ -140,6 +140,10 @@ test_output <- sfv_cpt %>%
 #https://capcomprotour.com/premier-tournament-dreamhack-summer-2016-2/?lang=en-us
 #What if this -2 is actually somehow an issue- it's supposed to externally be -results?
 
+position_results <- sfv_cpt$event_results %>% str_detect(., '-2/')
+sfv_cpt[position_results,]
+#no, that's not the case. Maybe just see which ones say 'results' in them?
+
 #what I'm thinking is essentially
 # - we're already scraping each tourney name/class
 # - what if we scraped each results page (for possible tourneys?)
