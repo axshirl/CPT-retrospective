@@ -97,6 +97,7 @@ sfv_cpt = bind_rows(event_list) %>%
 #clean up Characters columns ("Dhalsim/Kolin") 
 
 read_Results <- function(event_results, ...) {
+  cat(paste0(event_results, '\n'))
   result_page <- read_html(event_results)
   result_table <- result_page %>% html_node('.easy-table-default') %>% html_table(fill=TRUE)
   result_table$tag <- ifelse(str_detect(result_table$Handle, "\\|"), 
@@ -123,13 +124,13 @@ read_Results <- function(event_results, ...) {
            characters,
            'points' = Points
            )
-  Sys.sleep(15) #adding a long pause between scrapes
+  Sys.sleep(5) #adding a long pause between scrapes
+  cat(paste(event_results, 'exists and was read in.\n'))
   return(tourney_results)
 }
 
 #testing rn: some CPT final events have an empty points column 
 #and this makes html_table() sad
-#sfv_cpt1 <- sfv_cpt
 #404 issue in first 25?
 test_output <- sfv_cpt %>% 
   dplyr::mutate(tourney_results = pmap(., .f = read_Results))
@@ -141,25 +142,3 @@ test_output <- sfv_cpt %>%
 # - would pull players AND characters AND results! this is huge...
 # - NOTE- gotta be careful about how hard we hit the cpt site. 
 # - I want to get data not DDOS capcom lol
-
-grab_Table <- function(event_results) {
-  result_page <- read_html(event_results)
-  result_table <- result_page %>% html_node('.easy-table-default') %>% html_table(fill=TRUE)
-  Sys.sleep(15)
-  return(result_table)
-}
-test_output1 <- sfv_cpt %>%
-  dplyr::mutate()
-
-
-# a = c(2,4,6)
-# b = c(10,12,14)
-# params = expand.grid(a = a, b = b) %>% as_tibble()
-# gen_den = function(a,b,...){ 
-#   x = seq(0,1,0.1)
-#   den = dbeta(x = x, shape1 = a, shape2 = b)
-#   return(tibble(x = x, y = den))
-# }
-# params %>%
-#   dplyr::mutate(data = pmap(., gen_den)) 
-  
