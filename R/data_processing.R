@@ -143,6 +143,9 @@ test_output <- sfv_cpt %>%
 position_results <- sfv_cpt$event_results %>% str_detect(., '-2/')
 sfv_cpt[position_results,]
 #no, that's not the case. Maybe just see which ones say 'results' in them?
+results_strings <- !sfv_cpt$event_results %>% str_detect(., 'results')
+sfv_cpt[results_strings,]
+#Still not the case! I'm going to write up a patch for Dreamhack & see if our issue persists.
 
 #what I'm thinking is essentially
 # - we're already scraping each tourney name/class
