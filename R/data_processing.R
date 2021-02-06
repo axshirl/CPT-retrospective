@@ -135,6 +135,10 @@ read_Results <- function(event_results, ...) {
 test_output <- sfv_cpt %>% 
   dplyr::mutate(tourney_results = pmap(., .f = read_Results))
 
+#issue links:
+#SC2016
+#https://capcomprotour.com/premier-tournament-dreamhack-summer-2016-2/?lang=en-us
+#What if this -2 is actually somehow an issue- it's supposed to externally be -results?
 
 #what I'm thinking is essentially
 # - we're already scraping each tourney name/class
