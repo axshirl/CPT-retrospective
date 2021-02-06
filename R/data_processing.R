@@ -81,8 +81,15 @@ for (i in 1:5) {
   
 }
 
-sfv_cpt = bind_rows(event_list) #%>%
-  #nest(data = c(event_title, event_results))
+#binding together the lists we just created 
+#& replacing the broken link for SCR 2016
+#(results page exists, but link referenced on the CPT Schedule page has a typo)
+sfv_cpt = bind_rows(event_list) %>%
+  mutate(event_results = replace(event_results, 
+                                 event_year == 2016 & event_title == 'SoCal Regionals', 
+                                 'https://capcomprotour.com/premier-event-socal-regionals-2016-results/'
+                                 )
+         )
 
 #read in each results page and then start cleaning
 #lotta regex coming up. Need to separate sponsor tag from player tag
@@ -122,8 +129,9 @@ read_Results <- function(event_results, ...) {
 
 #testing rn: some CPT final events have an empty points column 
 #and this makes html_table() sad
-sfv_cpt1 <- sfv_cpt[1:3,]
-test_output <- sfv_cpt1 %>% 
+#sfv_cpt1 <- sfv_cpt
+#404 issue in first 25?
+test_output <- sfv_cpt %>% 
   dplyr::mutate(tourney_results = pmap(., .f = read_Results))
 
 
@@ -134,7 +142,14 @@ test_output <- sfv_cpt1 %>%
 # - NOTE- gotta be careful about how hard we hit the cpt site. 
 # - I want to get data not DDOS capcom lol
 
-
+grab_Table <- function(event_results) {
+  result_page <- read_html(event_results)
+  result_table <- result_page %>% html_node('.easy-table-default') %>% html_table(fill=TRUE)
+  Sys.sleep(15)
+  return(result_table)
+}
+test_output1 <- sfv_cpt %>%
+  dplyr::mutate()
 
 
 # a = c(2,4,6)
