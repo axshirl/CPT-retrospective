@@ -152,9 +152,11 @@ results_strings <- !sfv_cpt$event_results %>% str_detect(., 'results')
 sfv_cpt[results_strings,]
 #Still not the case! I'm going to write up a patch for Dreamhack & see if our issue persists.
 
-#what I'm thinking is essentially
-# - we're already scraping each tourney name/class
-# - what if we scraped each results page (for possible tourneys?)
-# - would pull players AND characters AND results! this is huge...
-# - NOTE- gotta be careful about how hard we hit the cpt site. 
-# - I want to get data not DDOS capcom lol
+#ANOTHER ONE.
+#https://capcomprotour.com/ranking-tournament-fight-2016-results/?lang=en-us
+#this is very annoying. I think the move is gonna be to find -all- of the broken links
+#and then maybe like, make a dataframe for just those & 
+#hotswap the broken links out w/ manually replaced working links? 
+#I doubt this problem ends in 2016.
+
+
