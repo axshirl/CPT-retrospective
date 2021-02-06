@@ -158,5 +158,7 @@ sfv_cpt[results_strings,]
 #and then maybe like, make a dataframe for just those & 
 #hotswap the broken links out w/ manually replaced working links? 
 #I doubt this problem ends in 2016.
+#https://capcomprotour.com/ranking-tournament-the-fight-2016-results/
+#This one they just missed a "the" 
 
 
