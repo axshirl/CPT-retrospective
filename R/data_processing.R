@@ -161,4 +161,9 @@ sfv_cpt[results_strings,]
 #https://capcomprotour.com/ranking-tournament-the-fight-2016-results/
 #This one they just missed a "the" 
 
+#Alright- Testing some stuff. Let's try catching the errors.
+attempt_Results <- possibly(read_Results, otherwise = NA)
+test_output <- sfv_cpt %>% 
+  dplyr::mutate(tourney_results = pmap(., .f = attempt_Results))
+broken_link_refs <-test_output %>% filter(is.na(tourney_results)) %>% select(-tourney_results)
 
