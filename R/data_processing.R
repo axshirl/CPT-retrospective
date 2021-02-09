@@ -85,17 +85,20 @@ for (i in 1:5) {
 #& replacing the broken link for SCR 2016
 #(results page exists, but link referenced on the CPT Schedule page has a typo)
 #same problem exists for Dreamhack summer 2016... please let this be all!
-sfv_cpt = bind_rows(event_list) %>%
-  mutate(event_results = replace(event_results, 
-                                 event_year == 2016 & event_title == 'SoCal Regionals', 
-                                 'https://capcomprotour.com/premier-event-socal-regionals-2016-results/'
-                                 )
-         ) %>%
-  mutate(event_results = replace(event_results, 
-                                 event_year == 2016 & event_title == 'Dreamhack Summer', 
-                                 'https://capcomprotour.com/premier-tournament-dreamhack-summer-2016-results/'
-                                 )
-         )
+sfv_cpt = bind_rows(event_list) 
+
+#2/8 commenting out the fixes for some links, gonna just do these all at once since there's so much manual work
+# %>%
+#   mutate(event_results = replace(event_results, 
+#                                  event_year == 2016 & event_title == 'SoCal Regionals', 
+#                                  'https://capcomprotour.com/premier-event-socal-regionals-2016-results/'
+#                                  )
+#          ) %>%
+#   mutate(event_results = replace(event_results, 
+#                                  event_year == 2016 & event_title == 'Dreamhack Summer', 
+#                                  'https://capcomprotour.com/premier-tournament-dreamhack-summer-2016-results/'
+#                                  )
+#          )
 #read in each results page and then start cleaning
 #lotta regex coming up. Need to separate sponsor tag from player tag
 #clean up Placing and change from character "1st" to numeric/int "1" 
@@ -165,5 +168,5 @@ sfv_cpt[results_strings,]
 attempt_Results <- possibly(read_Results, otherwise = NA)
 test_output <- sfv_cpt %>% 
   dplyr::mutate(tourney_results = pmap(., .f = attempt_Results))
-broken_link_refs <-test_output %>% filter(is.na(tourney_results)) %>% select(-tourney_results)
+broken_link_refs <- test_output %>% filter(is.na(tourney_results)) %>% select(-tourney_results)
 
