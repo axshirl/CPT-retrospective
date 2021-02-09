@@ -144,27 +144,8 @@ test_output <- sfv_cpt %>%
   dplyr::mutate(tourney_results = pmap(., .f = read_Results))
 
 #issue links:
-#SC2016
-#https://capcomprotour.com/premier-tournament-dreamhack-summer-2016-2/?lang=en-us
-#What if this -2 is actually somehow an issue- it's supposed to externally be -results?
 
-position_results <- sfv_cpt$event_results %>% str_detect(., '-2/')
-sfv_cpt[position_results,]
-#no, that's not the case. Maybe just see which ones say 'results' in them?
-results_strings <- !sfv_cpt$event_results %>% str_detect(., 'results')
-sfv_cpt[results_strings,]
-#Still not the case! I'm going to write up a patch for Dreamhack & see if our issue persists.
-
-#ANOTHER ONE.
-#https://capcomprotour.com/ranking-tournament-fight-2016-results/?lang=en-us
-#this is very annoying. I think the move is gonna be to find -all- of the broken links
-#and then maybe like, make a dataframe for just those & 
-#hotswap the broken links out w/ manually replaced working links? 
-#I doubt this problem ends in 2016.
-#https://capcomprotour.com/ranking-tournament-the-fight-2016-results/
-#This one they just missed a "the" 
-
-#Alright- Testing some stuff. Let's try catching the errors.
+#Alright- Testing some stuff. Let's try catching the 404 errors.
 attempt_Results <- possibly(read_Results, otherwise = NA)
 test_output <- sfv_cpt %>% 
   dplyr::mutate(tourney_results = pmap(., .f = attempt_Results))
