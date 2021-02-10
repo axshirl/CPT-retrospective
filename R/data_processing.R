@@ -24,7 +24,7 @@ sfv_tourneys <- tournaments_json %>%
   filter(version == 'SF5') %>%
   mutate(date = as.Date(date, format = '%d-%m-%Y')) %>%
   select(-c(version, videos, challonge, creator))
-  #unnest(players)
+
 
 #data before a certain date (2019? very recent) is entirely listed as UNRANKED for column 'type'
 #most likely going to have to go thru ranking criteria for 2016 -> 2019 seasons & 
@@ -194,4 +194,5 @@ full_tourneys_with_results <- tourneys_with_results %>%
   select(-tourney_results.x, -tourney_results.y, 
          -event_results.x, -event_results.y)
 #WOOOOO BOY THAT'S PRETTY
-
+saveRDS(full_tourneys_with_results, 'data/full_tourneys_with_results.rds')
+write(toJSON(full_tourneys_with_results), 'data/full_tourneys_with_results.json')
