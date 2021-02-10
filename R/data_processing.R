@@ -117,7 +117,26 @@ read_Results <- function(event_results, ...) {
     str_remove("\\|")
   result_table$placement <- str_extract(result_table$Placing, 
                                         "[:digit:]*") %>% as.numeric()
-  result_table$characters <- result_table$Characters %>% str_split("\\/") 
+  if(event_results == 'https://capcomprotour.com/furia-tica-2017-results/'){
+    #Furia Tica 2017 has a missing field in the table. this is mentioned
+    #a little more later in the script when we start patching up the 404s
+    #but as a result, I had to go find footage of top 8 & manually enter chars
+    #note that the table is top 16, but footage & results only exist for top 8
+    result_table <- result_table %>% head(8)
+    result_table$characters <- list('FANG', 
+                                    c('Urien', 'Rashid'), 
+                                    'Vega', 
+                                    'Ken', 
+                                    'Laura', 
+                                    'Balrog', 
+                                    'Guile', 
+                                    c('Guile', 'M.Bison','Ken')
+    )
+  } else {
+    result_table$characters <- result_table$Characters %>% str_split("\\/") 
+  }
+  
+  
   #splitting up the string for characters, i.e.
   #"Dhalsim/Kolin" should become c("Dhalsim", "kolin")
   #this makes this column a list, but as of rn I don't mind that
@@ -137,15 +156,16 @@ read_Results <- function(event_results, ...) {
   return(tourney_results)
 }
 
-#testing rn: some CPT final events have an empty points column 
-#and this makes html_table() sad
-#404 issue in first 25?
-test_output <- sfv_cpt %>% 
-  dplyr::mutate(tourney_results = pmap(., .f = read_Results))
+#There are 7 tournaments w/ result links that 404
+#the results pages exist, the links are just incorrect
+#so we'll replace those 7
+#and of those 7, one (furia tica 2017) is missing info from 
+#the results table. 
 
-#issue links:
-
-#Alright- Testing some stuff. Let's try catching the 404 errors.
+#using purrr::possibly() to catch these 404 errors
+#and replace the output w/ NA so that we can narrow down
+#what exists (and run it) and what doesn't (and pull it out)
+#and then manually replace those that don't exist after the fact.
 attempt_Results <- possibly(read_Results, otherwise = NA)
 test_output <- sfv_cpt %>% 
   dplyr::mutate(tourney_results = pmap(., .f = attempt_Results))
@@ -166,40 +186,3 @@ broken_link_refs <- broken_link_refs %>%
   mutate(event_results = manual_links) %>%
   dplyr::mutate(tourney_results = pmap(., .f = attempt_Results))
 
-furia_tica_2017_results <- read_html('https://capcomprotour.com/furia-tica-2017-results/') %>% 
-  html_node('.easy-table-default') %>% 
-  html_table(fill=TRUE) %>%
-  head(8) #Full results past top 8 do not exist for this tourney & cannot be verified
-
-furia_tica_2017_results$tag <- ifelse(str_detect(furia_tica_2017_results$Handle, 
-                                                 "\\|"), 
-                                      str_extract(furia_tica_2017_results$Handle, 
-                                                  "\\|.*") %>% str_remove("\\|"),  
-                                      furia_tica_2017_results$Handle
-                                      )
-furia_tica_2017_results$sponsor <- str_extract(furia_tica_2017_results$Handle, 
-                                    "^.[^|]*\\|") %>% 
-  str_remove("\\|")
-
-furia_tica_2017_results$placement <- str_extract(furia_tica_2017_results$Placing, 
-                                      "[:digit:]*") %>% as.numeric()
-furia_tica_2017_results$characters <- 
-
-# Mono FANG
-# Flash Urien, Rashid
-# Doomsnake Vega
-# AndyenigmaCR Ken
-# ElTigre Laura
-# Nano Balrog
-# Gabo Guile
-# IAMTHEFINALBOSS Guile/M Bison, Ken
-
-furia_tica_characters <- list('FANG', 
-                              c('Urien', 'Rashid'), 
-                              'Vega', 
-                              'Ken', 
-                              'Laura', 
-                              'Balrog', 
-                              'Guile', 
-                              c('Guile', 'M.Bison','Ken')
-                              )
