@@ -149,5 +149,57 @@ test_output <- sfv_cpt %>%
 attempt_Results <- possibly(read_Results, otherwise = NA)
 test_output <- sfv_cpt %>% 
   dplyr::mutate(tourney_results = pmap(., .f = attempt_Results))
-broken_link_refs <- test_output %>% filter(is.na(tourney_results)) %>% select(-tourney_results)
+broken_link_refs <- test_output %>% filter(is.na(tourney_results)) 
 
+#actual links
+manual_links <- c('https://capcomprotour.com/premier-event-socal-regionals-2016-results/', 
+                  'https://capcomprotour.com/premier-tournament-dreamhack-summer-2016-results/', 
+                  'https://capcomprotour.com/ranking-tournament-the-fight-2016-results/', 
+                  'https://capcomprotour.com/toryuken-v-unleashed-results/', 
+                  'https://capcomprotour.com/ranking-tournament-lima-salty3-at-mgtfix-results/', 
+                  'https://capcomprotour.com/furia-tica-2017-results/', 
+                  'https://capcomprotour.com/europe-west-2-results-mildom-bstinfexious-from-the-uk-wins/'
+                  )
+
+#replacing the broken links in the subsetted df
+broken_link_refs <- broken_link_refs %>%
+  mutate(event_results = manual_links) %>%
+  dplyr::mutate(tourney_results = pmap(., .f = attempt_Results))
+
+furia_tica_2017_results <- read_html('https://capcomprotour.com/furia-tica-2017-results/') %>% 
+  html_node('.easy-table-default') %>% 
+  html_table(fill=TRUE) %>%
+  head(8) #Full results past top 8 do not exist for this tourney & cannot be verified
+
+furia_tica_2017_results$tag <- ifelse(str_detect(furia_tica_2017_results$Handle, 
+                                                 "\\|"), 
+                                      str_extract(furia_tica_2017_results$Handle, 
+                                                  "\\|.*") %>% str_remove("\\|"),  
+                                      furia_tica_2017_results$Handle
+                                      )
+furia_tica_2017_results$sponsor <- str_extract(furia_tica_2017_results$Handle, 
+                                    "^.[^|]*\\|") %>% 
+  str_remove("\\|")
+
+furia_tica_2017_results$placement <- str_extract(furia_tica_2017_results$Placing, 
+                                      "[:digit:]*") %>% as.numeric()
+furia_tica_2017_results$characters <- 
+
+# Mono FANG
+# Flash Urien, Rashid
+# Doomsnake Vega
+# AndyenigmaCR Ken
+# ElTigre Laura
+# Nano Balrog
+# Gabo Guile
+# IAMTHEFINALBOSS Guile/M Bison, Ken
+
+furia_tica_characters <- list('FANG', 
+                              c('Urien', 'Rashid'), 
+                              'Vega', 
+                              'Ken', 
+                              'Laura', 
+                              'Balrog', 
+                              'Guile', 
+                              c('Guile', 'M.Bison','Ken')
+                              )
