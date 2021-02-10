@@ -122,7 +122,7 @@ read_Results <- function(event_results, ...) {
     #a little more later in the script when we start patching up the 404s
     #but as a result, I had to go find footage of top 8 & manually enter chars
     #note that the table is top 16, but footage & results only exist for top 8
-    result_table <- result_table %>% head(8)
+    result_table <- result_table %>% head(8) %>% select(-3) 
     result_table$characters <- list('FANG', 
                                     c('Urien', 'Rashid'), 
                                     'Vega', 
@@ -135,8 +135,6 @@ read_Results <- function(event_results, ...) {
   } else {
     result_table$characters <- result_table$Characters %>% str_split("\\/") 
   }
-  
-  
   #splitting up the string for characters, i.e.
   #"Dhalsim/Kolin" should become c("Dhalsim", "kolin")
   #this makes this column a list, but as of rn I don't mind that
@@ -185,4 +183,3 @@ manual_links <- c('https://capcomprotour.com/premier-event-socal-regionals-2016-
 broken_link_refs <- broken_link_refs %>%
   mutate(event_results = manual_links) %>%
   dplyr::mutate(tourney_results = pmap(., .f = attempt_Results))
-
