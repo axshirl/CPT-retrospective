@@ -83,28 +83,17 @@ for (i in 1:5) {
   
 }
 
-#binding together the lists we just created 
-#& replacing the broken link for SCR 2016
-#(results page exists, but link referenced on the CPT Schedule page has a typo)
-#same problem exists for Dreamhack summer 2016... please let this be all!
+#binding together the lists we just created
 sfv_cpt = bind_rows(event_list) 
 
-#2/8 commenting out the fixes for some links, gonna just do these all at once since there's so much manual work
-# %>%
-#   mutate(event_results = replace(event_results, 
-#                                  event_year == 2016 & event_title == 'SoCal Regionals', 
-#                                  'https://capcomprotour.com/premier-event-socal-regionals-2016-results/'
-#                                  )
-#          ) %>%
-#   mutate(event_results = replace(event_results, 
-#                                  event_year == 2016 & event_title == 'Dreamhack Summer', 
-#                                  'https://capcomprotour.com/premier-tournament-dreamhack-summer-2016-results/'
-#                                  )
-#          )
+
 #read in each results page and then start cleaning
 #lotta regex coming up. Need to separate sponsor tag from player tag
 #clean up Placing and change from character "1st" to numeric/int "1" 
 #clean up Characters columns ("Dhalsim/Kolin") 
+#note that there's a handful (7 out of ~290) results page links that
+#lead to a 404- the results exist, the links are just bunk.
+#we'll be dealing with these in a second
 
 #### Appending results ####
 
