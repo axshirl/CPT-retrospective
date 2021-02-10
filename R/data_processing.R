@@ -104,6 +104,8 @@ sfv_cpt = bind_rows(event_list)
 #clean up Placing and change from character "1st" to numeric/int "1" 
 #clean up Characters columns ("Dhalsim/Kolin") 
 
+#### Appending results ####
+
 read_Results <- function(event_results, ...) {
   cat(paste0(event_results, '\n'))
   result_page <- read_html(event_results)
@@ -164,6 +166,8 @@ read_Results <- function(event_results, ...) {
 #and replace the output w/ NA so that we can narrow down
 #what exists (and run it) and what doesn't (and pull it out)
 #and then manually replace those that don't exist after the fact.
+
+#### Fixing 404 page errors ####
 attempt_Results <- possibly(read_Results, otherwise = NA)
 test_output <- sfv_cpt %>% 
   dplyr::mutate(tourney_results = pmap(., .f = attempt_Results))
