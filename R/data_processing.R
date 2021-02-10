@@ -98,9 +98,11 @@ sfv_cpt = bind_rows(event_list)
 #### Appending results ####
 
 read_Results <- function(event_results, ...) {
-  cat(paste0(event_results, '\n'))
+  #read in page, grab the table. start cleanin'
   result_page <- read_html(event_results)
   result_table <- result_page %>% html_node('.easy-table-default') %>% html_table(fill=TRUE)
+  #split handle into Sponsor name & Player name columns.
+  #If no sponsor, make it NA
   result_table$tag <- ifelse(str_detect(result_table$Handle, "\\|"), 
                              str_extract(result_table$Handle, 
                                          "\\|.*") %>% str_remove("\\|"), 
@@ -108,11 +110,12 @@ read_Results <- function(event_results, ...) {
   result_table$sponsor <- str_extract(result_table$Handle, 
                                       "^.[^|]*\\|") %>% 
     str_remove("\\|")
+  #making placement into numeric instead of string (1 instead of '1st')
   result_table$placement <- str_extract(result_table$Placing, 
                                         "[:digit:]*") %>% as.numeric()
   if(event_results == 'https://capcomprotour.com/furia-tica-2017-results/'){
     #Furia Tica 2017 has a missing field in the table. this is mentioned
-    #a little more later in the script when we start patching up the 404s
+    #a little later in the script when we start patching up the 404s
     #but as a result, I had to go find footage of top 8 & manually enter chars
     #note that the table is top 16, but footage & results only exist for top 8
     result_table <- result_table %>% head(8) %>% select(-3) 
@@ -126,14 +129,14 @@ read_Results <- function(event_results, ...) {
                                     c('Guile', 'M.Bison','Ken')
     )
   } else {
+    #splitting up the string for characters, i.e.
+    #"Dhalsim/Kolin" should become c("Dhalsim", "kolin")
+    #means this'll be a list column
+    #note that we don't want to do this for that stupid furia tica
+    #edge case bc there's no characters column by default
     result_table$characters <- result_table$Characters %>% str_split("\\/") 
   }
-  #splitting up the string for characters, i.e.
-  #"Dhalsim/Kolin" should become c("Dhalsim", "kolin")
-  #this makes this column a list, but as of rn I don't mind that
-  #if worst comes to worst I guess we make it wide but I don't know
-  #that i want to do that
-  
+  #Add Points column if it doesn't exist. rename some cols and shrink what we return
   tourney_results <- result_table %>% 
     mutate(Points = {if("Points" %in% names(.)) Points else NA}) %>%
     select(placement, 
@@ -142,8 +145,7 @@ read_Results <- function(event_results, ...) {
            characters,
            'points' = Points
            )
-  Sys.sleep(5) #adding a long pause between scrapes
-  cat(paste(event_results, 'exists and was read in.\n'))
+  Sys.sleep(5) #adding a pause between scrapes
   return(tourney_results)
 }
 
