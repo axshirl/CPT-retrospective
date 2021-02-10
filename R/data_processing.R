@@ -1,6 +1,6 @@
 ##################################################
 ## Project: SFV CPT Retrospective Analysis
-## Script purpose: Data Intake & Processing
+## Script Purpose: Data Intake & Processing
 ## Date: 7/28/2020
 ## Author: Alex Shirley, axshirl
 ##################################################
@@ -19,12 +19,11 @@ tournaments_json <- fromJSON("data/tournaments.json") %>%
 #have a column that is a list column of player involved, characters, placements
 #function takes in a nested structure
 
-#date read in as character
+#date reads in as character
 sfv_tourneys <- tournaments_json %>% 
   filter(version == 'SF5') %>%
   mutate(date = as.Date(date, format = '%d-%m-%Y')) %>%
   select(-c(version, videos, challonge, creator))
-
 
 #data before a certain date (2019? very recent) is entirely listed as UNRANKED for column 'type'
 #most likely going to have to go thru ranking criteria for 2016 -> 2019 seasons & 
