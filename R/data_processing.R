@@ -194,5 +194,7 @@ full_tourneys_with_results <- tourneys_with_results %>%
   select(-tourney_results.x, -tourney_results.y, 
          -event_results.x, -event_results.y)
 #WOOOOO BOY THAT'S PRETTY
+
+#### Saving Output ####
 saveRDS(full_tourneys_with_results, 'data/full_tourneys_with_results.rds')
-write(toJSON(full_tourneys_with_results), 'data/full_tourneys_with_results.json')
+write(toJSON(full_tourneys_with_results, encoding = "UTF-8"), 'data/full_tourneys_with_results.json')
