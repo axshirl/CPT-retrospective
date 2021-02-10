@@ -26,8 +26,8 @@ sfv_tourneys <- tournaments_json %>%
   select(-c(version, videos, challonge, creator))
 
 #data before a certain date (2019? very recent) is entirely listed as UNRANKED for column 'type'
-#most likely going to have to go thru ranking criteria for 2016 -> 2019 seasons & 
-#basically need to make a key- How much were places worth for Type = 'premier' in 2016? 2017? etc
+#meaning we need to create a system to attach points (which vary by tourney type)
+#to tourneys. or full results with points
 
 ####Classifying tourneys####
 #scraping the capcom site for tourney names + types.
