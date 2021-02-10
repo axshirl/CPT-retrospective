@@ -169,7 +169,7 @@ read_Results <- function(event_results, ...) {
 
 #### Fixing 404 page errors ####
 attempt_Results <- possibly(read_Results, otherwise = NA)
-test_output <- sfv_cpt %>% 
+tourneys_with_results <- sfv_cpt %>% 
   dplyr::mutate(tourney_results = pmap(., .f = attempt_Results))
 broken_link_refs <- test_output %>% filter(is.na(tourney_results)) 
 
@@ -184,6 +184,14 @@ manual_links <- c('https://capcomprotour.com/premier-event-socal-regionals-2016-
                   )
 
 #replacing the broken links in the subsetted df
-broken_link_refs <- broken_link_refs %>%
+broken_results_patch <- broken_link_refs %>%
   mutate(event_results = manual_links) %>%
   dplyr::mutate(tourney_results = pmap(., .f = attempt_Results))
+
+full_tourneys_with_results <- tourneys_with_results %>%
+  left_join(broken_results_patch, by = c('event_year', 'event_type', 'event_title')) %>%
+  mutate(tourney_results = coalesce(tourney_results.x, tourney_results.y)) %>%
+  select(-tourney_results.x, -tourney_results.y, 
+         -event_results.x, -event_results.y)
+#WOOOOO BOY THAT'S PRETTY
+
