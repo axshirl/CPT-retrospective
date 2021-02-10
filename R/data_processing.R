@@ -155,18 +155,17 @@ read_Results <- function(event_results, ...) {
 #and of those 7, one (furia tica 2017) is missing info from 
 #the results table. 
 
-#using purrr::possibly() to catch these 404 errors
-#and replace the output w/ NA so that we can narrow down
-#what exists (and run it) and what doesn't (and pull it out)
-#and then manually replace those that don't exist after the fact.
-
 #### Fixing 404 page errors ####
+#possibly() gives us whatever output runs, & if it doesn't run because
+#of a 404 error, it'll give us NA. after that, we grab all the NA results
 attempt_Results <- possibly(read_Results, otherwise = NA)
 tourneys_with_results <- sfv_cpt %>% 
   dplyr::mutate(tourney_results = pmap(., .f = attempt_Results))
 broken_link_refs <- test_output %>% filter(is.na(tourney_results)) 
 
-#actual links
+#and once we have the NA result tourneys (the 7 with 404 errors)
+#we just find the actual working results pages (why are these different??)
+#and patch em up
 manual_links <- c('https://capcomprotour.com/premier-event-socal-regionals-2016-results/', 
                   'https://capcomprotour.com/premier-tournament-dreamhack-summer-2016-results/', 
                   'https://capcomprotour.com/ranking-tournament-the-fight-2016-results/', 
