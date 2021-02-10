@@ -38,5 +38,9 @@ vignettes/*.pdf
 # R Environment Variables
 .Renviron
 
-# Ignoring data folder
-data/*
+# Ignoring original data 
+data/tournaments.json
+data/teams.json
+data/players.json
+data/hardware.json
+data/events.json
