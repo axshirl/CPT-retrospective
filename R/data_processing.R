@@ -175,18 +175,22 @@ manual_links <- c('https://capcomprotour.com/premier-event-socal-regionals-2016-
                   'https://capcomprotour.com/europe-west-2-results-mildom-bstinfexious-from-the-uk-wins/'
                   )
 
-#replacing the broken links in the subsetted df
+#replacing the broken links in the subsetted df and grabbing those results
 broken_results_patch <- broken_link_refs %>%
   mutate(event_results = manual_links) %>%
   dplyr::mutate(tourney_results = pmap(., .f = attempt_Results))
 
+#and now we use our 7 row dataframe to patch up the main dataframe-
+#joining into the original dataframe and then taking the new column (from the patch)
+#and using that wherever the original results column has NA
 full_tourneys_with_results <- tourneys_with_results %>%
   left_join(broken_results_patch, by = c('event_year', 'event_type', 'event_title')) %>%
   mutate(tourney_results = coalesce(tourney_results.x, tourney_results.y)) %>%
   select(-tourney_results.x, -tourney_results.y, 
          -event_results.x, -event_results.y)
-#WOOOOO BOY THAT'S PRETTY
+#WOOOOO BOY i thought i'd never see the day
 
 #### Saving Output ####
+#rds for personal use and json for the sake of having it
 saveRDS(full_tourneys_with_results, 'data/full_tourneys_with_results.rds')
 write(toJSON(full_tourneys_with_results, encoding = "UTF-8"), 'data/full_tourneys_with_results.json')
