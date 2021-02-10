@@ -32,8 +32,11 @@ sfv_tourneys <- tournaments_json %>%
 ####Classifying tourneys####
 #scraping the capcom site for tourney names + types.
 
-event_list = list()
-#we'll need somewhere to keep our dataframes as we build them
+#preallocating list for loop purposes
+#normally would've written a function & used a functional 
+#(we'll do that later) but this just fit with the way I was
+#exploring the data at the time. 
+event_list = vector(mode = 'list', length = 5)
 for (i in 1:5) {
   loop_year = 2015+i
   cpt_page <- read_html(
